@@ -1,43 +1,42 @@
-# Build and image generation for devcontainers
+Build and image generation for devcontainers
 
 This folder contains scripts to build and push images into the Microsoft Container Registry (MCR) from this repository, generate or modify any associated content to use the built image, and track dependencies.
 
-## Build CLI
+Build CLI
 
-The Node.js based build CLI (`build/vsdc`) has commands to:
+The Node.js based build CLI has commands to:
 
-1. Build and push to a repository: `build/vsdc push`
-2. Generate cgmanifest.json and history markdown files: `build/vsdc cg`, `build/vsdc info`
+1. Build and push to a repository: build/vsdc push
+2. Generate cgmanifest.json and history markdown files: build/vsdc cg build/vsdc info
 
-Run with the `--help` option to see inputs.
+Run with the help option to see inputs.
 
 This CLI is used in the GitHub Actions workflows in this repository.
 
-- `push-dev.yml`: Pushes a "dev" tag for each image to be generated in this repository and fires repository dispatch to trigger cgmanifest.json generation.
-- `push.yml`: Triggers when a release tag is pushed (`vX.Y.Z`). Builds and pushes a release version of the images. Note that this update the tag with source files that contain a SHA hash for script sources. You may need to run `git fetch --tags --force` locally after it runs.
-- `push-again.yml`: A manually triggered workflow that can be used to push an updated version of an image for an existing release. This should only be used in cases where the image push to the registry only partially succeeded (e.g. `linux/amd64` was pushed, but a connection error happened when pushing `linux/arm64` for the same image.)
-- `smoke-*.yaml` (using the `smoke-test` action in this repository) - Runs a build without pushing and executes `test-project/test.sh` (if present) inside the container to verify that there are no breaking changes to the image when the repository contents are updated.
-- `version-history.yml`: Listens for workflow dispatch events to trigger cgmanifest.json and history markdown generation.
+push-dev.yml Pushes a dev tag for each image to be generated in this repository and fires repository dispatch to trigger cgmanifest.json generation.
+push.yml: Triggers when a release tag is pushed vX.Y.Z. Builds and pushes a release version of the images. Note that this update the tag with source files that contain a SHA hash for script sources. You may need to run git fetch tags force locally after it runs.
+push-again: A manually triggered workflow that can be used to push an updated version of an image for an existing release. This should only be used in cases where the image push to the registry only partially succeeded (e.g. linux/amd64 was pushed, but a connection error happened when pushing linux/arm64 for the same image.
+smoke.yaml using the smoketest action in this repository  Runs a build without pushing and executes test-project/test.sh (if present) inside the container to verify that there are no breaking changes to the image when the repository contents are updated.
+version-history Listens for workflow dispatch events to trigger cgmanifest.json and history markdown generation.
 
-## Setting up a container to be built
-
-> **Note:** Only @devcontainers/maintainers can currently onboard an image to this process since it requires access the Microsoft Container Registry. [See here for details](https://github.com/microsoft/vscode-internalbacklog/wiki/Remote-Container-Images-MCR-Setup).
+Setting up a container to be built
+Note: Only @devcontainers/maintainers can currently onboard an image to this process since it requires access the Microsoft Container Registry. See here for details https://github.com/microsoft/vscode-internhttps://github.com/microsoft/vscode-internalbacklog/wiki/Remote-Container-Images-MCR-Setupalbacklog/wiki/Remote-Container-Images-MCR-Setup).
 >
 > However, if you have your own pre-built image or build process, you can simply reference it directly in you contributed container.
 
-Image build/push to MCR is managed using config in `manifest.json` files that are located in the images' folder. So, the steps to onboard an image are:
+Image build/push to MCR is managed using config in manifest. files that are located in the images folder. So, the steps to onboard an image are:
 
-1. **Important:** Update any `ARG` values in your `Dockerfile` to reflect what you want in the image. Use boolean `ARGS` with `if` statements to skip installing certain things in the image.
+1. Important: Update any ARG values in your Dockerfile to reflect what you want in the image. Use boolean ARGS with if statements to skip installing certain things in the image.
 
-    > **Note:** The `build.args` and `build.dockerfile` properties are **intentionally ignored** during image build so that you can vary image defaults and devcontainer.json defaults as appropriate. The only property considered is `build.context` since this may be required for the build to succeed.
+    Note:** The build.args and build.dockerfile properties are intentionally ignored during image build so that you can vary image defaults and devcontainer.json defaults as appropriate. The only property considered is build.context since this may be required for the build to succeed.
 
-2. Create a [`Dockerfile`](#creating-a-dockerfile)
+2. Create a Dockerfile creating-a-dockerfile
 
-3. Create [a `manifest.json` file](#the-manifestjson-file)
+3. Create manifest.json file](#the-manifestjson-file)
 
 4. Set up [meta.env file](#Adding-a-meta.env-file)
 
-5. Update the `vscode` [config files for MCR](https://github.com/microsoft/vscode-internalbacklog/wiki/Remote-Container-Images-MCR-Setup) as appropriate (MS internal only).
+5. Update the vscode [config files for MCR](https://github.com/microsoft/vscode-internalbacklog/wiki/Remote-Container-Images-MCR-Setup) as appropriate (MS internal only).
 
 ## Testing the build
 
@@ -566,13 +565,7 @@ When a release is cut, the contents of devcontainers repo are staged. The build 
 
 4. `devcontainer.json` is updated to point to `Dockerfile` and a comment is added that points to the image in this repository (along with its associated README for this specific version).
 
-    ```json
-    // For format details, see https://aka.ms/vscode-remote/devcontainer.json
-    {
-        "name": "Node.js 10",
-        "dockerFile": "Dockerfile",
-    }
-    ```
+
 
 ## Linux ARM64 Specific Builds
 
